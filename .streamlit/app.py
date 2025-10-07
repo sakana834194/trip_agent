@@ -1,5 +1,5 @@
 import streamlit as st
-from main import TripCrew
+from agents.main import TripCrew
 import json
 import base64
 import datetime as dt
@@ -90,7 +90,7 @@ def fetch_amap_china_cities(api_key: str) -> list[str]:
     return sorted(unique_cities)
 
 def get_amap_key() -> str:
-    # 优先 AMAP_KEY，其次 AMLP_APIKEY（你当前环境已设置此名）
+    # 优先 AMAP_KEY，其次 AMAP_APIKEY
     return os.getenv("AMAP_KEY")  or os.getenv("AMAP_APIKEY") or ""
 
 
@@ -155,7 +155,7 @@ div[data-testid="stSelectbox"] > div { border: 1px solid rgba(37,99,235,.35); bo
   padding: 0 14px;         /* 横向内边距 */
   white-space: nowrap;     /* 阻止“添加”换行 */
   writing-mode: horizontal-tb; /* 横向文字方向 */
-  margin-top: 0;           /* 交由父容器对齐，不再强制上边距 */
+  margin-top: 0;           /* 交由父容器对齐 */
 }
 </style>
 """
@@ -339,7 +339,7 @@ with st.container():
 
 # 动画：放在表单下方
 with st.container():
-    # 轻量 Lottie 动画（可选）
+    # 轻量 Lottie 动画
     try:
         if st_lottie is not None:
             # 使用最小有效 Lottie 结构，避免语法错误
