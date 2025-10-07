@@ -1,0 +1,32 @@
+[project]
+name = "trip-planner-crew"
+version = "0.1.0"
+description = ""
+authors = [{name = "Your Name", email = "you@example.com"}]
+requires-python = ">=3.10.0,<3.12"
+dependencies = [
+    "crewai>=0.177.0",
+    "unstructured==0.10.25",
+    "pyowm==3.3.0",
+    "tools>=0.1.9",
+    "python-dotenv==1.0.0",
+    "crewai-tools>=0.59.0",
+    "langchain-openai>=0.0.2",
+    "streamlit>=1.31.0",
+    "streamlit-lottie>=0.0.5",
+    "streamlit-folium>=0.18.0",
+    "folium>=0.15.0",
+    "geopy>=2.4.0",
+    "geonamescache>=1.5.0",
+]
+
+[tool.pyright]
+# https://github.com/microsoft/pyright/blob/main/docs/configuration.md
+useLibraryCodeForTypes = true
+exclude = [".cache"]
+
+[tool.ruff]
+# https://beta.ruff.rs/docs/configuration/
+select = ['E', 'W', 'F', 'I', 'B', 'C4', 'ARG', 'SIM']
+ignore = ['W291', 'W292', 'W293']
+
