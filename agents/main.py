@@ -1,8 +1,7 @@
-import os
 from crewai import Crew
 from textwrap import dedent
-from trip_agents import TripAgents
-from trip_tasks import TripTasks
+from agents.trip_agents import TripAgents
+from agents.trip_tasks import TripTasks
 
 from dotenv import load_dotenv
 load_dotenv()
