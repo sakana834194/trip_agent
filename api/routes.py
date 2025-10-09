@@ -10,29 +10,29 @@ from sqlalchemy.orm import Session
 from .db import get_db, init_db, User, Plan, PlanVersion, Favorite
 from .auth import hash_password, verify_password, create_access_token, get_current_user
 
-
+# 创建API路由
 router = APIRouter(prefix="/api/v1", tags=["TripPlanner"])
 
-
+# 创建注册请求
 class RegisterReq(BaseModel):
     username: str
     password: str
 
-
+# 创建登录请求
 class LoginReq(BaseModel):
     username: str
     password: str
 
-
+# 创建Token响应
 class TokenResp(BaseModel):
     token: str
 
-
+# 启动事件
 @router.on_event("startup")
 def _startup():
     init_db()
 
-
+# 注册
 @router.post("/auth/register", response_model=TokenResp)
 def register(req: RegisterReq, db: Session = Depends(get_db)):
     exists = db.scalar(select(func.count()).select_from(User).where(User.username == req.username))
@@ -44,7 +44,7 @@ def register(req: RegisterReq, db: Session = Depends(get_db)):
     db.refresh(user)
     return TokenResp(token=create_access_token(user.id, user.username))
 
-
+# 登录
 @router.post("/auth/login", response_model=TokenResp)
 def login(req: LoginReq, db: Session = Depends(get_db)):
     user: User | None = db.scalar(select(User).where(User.username == req.username))
@@ -52,19 +52,19 @@ def login(req: LoginReq, db: Session = Depends(get_db)):
         raise HTTPException(status_code=401, detail="用户名或密码错误")
     return TokenResp(token=create_access_token(user.id, user.username))
 
-
+# 创建保存计划请求
 class SavePlanReq(BaseModel):
     title: str
     data: Dict[str, Any]
     notes: Optional[str] = None
     rating: Optional[int] = None
 
-
+# 创建保存计划响应
 class SavePlanResp(BaseModel):
     plan_id: int
     version: int
 
-
+# 保存计划
 @router.post("/plans/save", response_model=SavePlanResp)
 def save_plan(
     req: SavePlanReq,
@@ -91,7 +91,7 @@ class PlanBrief(BaseModel):
     title: str
     latest_version: int
 
-
+# 计划列表
 @router.get("/plans", response_model=List[PlanBrief])
 def list_plans(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     rows = db.execute(
@@ -103,7 +103,7 @@ def list_plans(user: User = Depends(get_current_user), db: Session = Depends(get
     ).all()
     return [PlanBrief(id=r[0], title=r[1], latest_version=int(r[2] or 1)) for r in rows]
 
-
+# 计划版本响应
 class PlanVersionResp(BaseModel):
     id: int
     version: int
@@ -111,7 +111,7 @@ class PlanVersionResp(BaseModel):
     notes: Optional[str] = None
     rating: Optional[int] = None
 
-
+# 计划版本列表
 @router.get("/plans/{plan_id}/versions", response_model=List[PlanVersionResp])
 def list_versions(plan_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     plan = db.get(Plan, plan_id)
@@ -123,7 +123,7 @@ def list_versions(plan_id: int, user: User = Depends(get_current_user), db: Sess
         for v in versions
     ]
 
-
+# 收藏计划
 @router.post("/plans/{plan_id}/favorite")
 def toggle_favorite(plan_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     plan = db.get(Plan, plan_id)
@@ -138,13 +138,13 @@ def toggle_favorite(plan_id: int, user: User = Depends(get_current_user), db: Se
     db.commit()
     return {"active": bool(fav.active)}
 
-
+# 创建重新规划请求
 class ReplanReq(BaseModel):
     plan_id: int
     version: int
     feedback: str
 
-
+# 重新规划
 @router.post("/plans/replan", response_model=SavePlanResp)
 def replan(req: ReplanReq, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     ver = db.get(PlanVersion, req.version)

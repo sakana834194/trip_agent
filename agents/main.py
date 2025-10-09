@@ -6,22 +6,27 @@ from agents.trip_tasks import TripTasks
 from dotenv import load_dotenv
 load_dotenv()
 
+# 旅游规划助手的启动
 class TripCrew:
 
+  # 构建城市选择，目的地，兴趣，日期范围
   def __init__(self, origin, cities, date_range, interests):
     self.cities = cities
     self.origin = origin
     self.interests = interests
     self.date_range = date_range
 
+  # 实例化agents与任务
   def run(self):
     agents = TripAgents()
     tasks = TripTasks()
 
+    # 实例化三个agent
     city_selector_agent = agents.city_selection_agent()
     local_expert_agent = agents.local_expert()
     travel_concierge_agent = agents.travel_concierge()
 
+    # 对目的城市进行评估后的任务，规划出目的城市的信息（天气，机票，酒店，景点）
     identify_task = tasks.identify_task(
       city_selector_agent,
       self.origin,
@@ -29,12 +34,16 @@ class TripCrew:
       self.interests,
       self.date_range
     )
+
+    # 对目标城市的更详细的规划任务，主要包含当地城市的一些风俗文化，打卡地标和其中的必要开销
     gather_task = tasks.gather_task(
       local_expert_agent,
       self.origin,
       self.interests,
       self.date_range
     )
+
+    # 将上述的规划详细整理，制定出完整的行程规划，包含整个旅程的全流程，最终提供格式化输出（markdown）
     plan_task = tasks.plan_task(
       travel_concierge_agent, 
       self.origin,
@@ -42,6 +51,7 @@ class TripCrew:
       self.date_range
     )
 
+    # 实例化crew，并执行任务
     crew = Crew(
       agents=[
         city_selector_agent, local_expert_agent, travel_concierge_agent
@@ -74,6 +84,8 @@ if __name__ == "__main__":
     """))
   
   trip_crew = TripCrew(location, cities, date_range, interests)
+
+  # 生成最终行程规划
   result = trip_crew.run()
   print("\n\n########################")
   print("## 这是为您生成的行程规划")

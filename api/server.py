@@ -8,28 +8,28 @@ from .routes import router as api_router
 import concurrent.futures
 import time
 
-
+# 创建计划请求
 class PlanRequest(BaseModel):
   origin: str
   cities: str  # 逗号分隔的候选城市
   date_range: str  # 形如 "2025-10-01 ~ 2025-10-07"
   interests: str | None = None
 
-
+# 创建每日行程响应
 class DayPlan(BaseModel):
   date: str
   activities: List[str]
   meals: List[str] | None = None
   notes: str | None = None
 
-
+# 创建计划响应
 class PlanResponse(BaseModel):
   summary: str
   days: List[DayPlan]
   budget_estimate: Dict[str, Any] | None = None
   raw_markdown: str
 
-
+# 创建FastAPI应用
 app = FastAPI(title="Trip Planner API", version="1.0.0")
 app.add_middleware(
   CORSMiddleware,
@@ -41,7 +41,7 @@ app.add_middleware(
 
 app.include_router(api_router)
 
-
+# 解析日期范围
 def parse_date_range(date_range: str) -> List[str]:
   # 兼容多种分隔与格式：优先正则提取 YYYY-MM-DD
   import re
@@ -77,7 +77,7 @@ def parse_date_range(date_range: str) -> List[str]:
     # 最后兜底：当天
     return [dt.date.today().isoformat()]
 
-
+# 将markdown文本转换为结构化数据
 def naive_markdown_to_struct(md_text: str, days: List[str]) -> PlanResponse:
   # 简易解析：按日期标题或行分割，不保证完美，但可提供结构化导出
   days = days or [dt.date.today().isoformat()]
@@ -102,7 +102,7 @@ def naive_markdown_to_struct(md_text: str, days: List[str]) -> PlanResponse:
   summary = f"行程共 {len(days)} 天；出发至返回全流程涵盖交通、餐饮与景点。"
   return PlanResponse(summary=summary, days=day_plans, budget_estimate=None, raw_markdown=md_text)
 
-
+# 创建计划
 @app.post("/api/v1/plan", response_model=PlanResponse)
 def create_plan(req: PlanRequest):
   if not req.origin or not req.cities or not req.date_range:
@@ -122,7 +122,7 @@ def create_plan(req: PlanRequest):
   days = parse_date_range(req.date_range)
   return naive_markdown_to_struct(md_text, days)
 
-
+# 创建计划ICS
 @app.post("/api/v1/plan/ics")
 def create_plan_ics(req: PlanRequest):
   if not req.origin or not req.cities or not req.date_range:

@@ -26,6 +26,8 @@ class TripAgents():
   # 用于评估多个目的地后最终作出抉择的agent
   def city_selection_agent(self):
     tools: list[BaseTool] = [CalculatorTool()]
+
+    # 启动搜索工具，爬取网站，计算器工具
     if ENABLE_SEARCH_CITY_SELECTION:
       tools = [
         SearchTools.search_tool(),

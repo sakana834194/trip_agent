@@ -32,7 +32,7 @@ SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
 class Base(DeclarativeBase):
     pass
 
-
+# 用户表，存放用户的id，用户名，密码，创建时间，计划，收藏
 class User(Base):
     __tablename__ = "users"
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
@@ -43,7 +43,7 @@ class User(Base):
     plans: Mapped[list[Plan]] = relationship("Plan", back_populates="user", cascade="all, delete-orphan")  # type: ignore[name-defined]
     favorites: Mapped[list[Favorite]] = relationship("Favorite", back_populates="user", cascade="all, delete-orphan")  # type: ignore[name-defined]
 
-
+# 计划表，存放计划的id，用户id，计划标题，创建时间，版本，备注
 class Plan(Base):
     __tablename__ = "plans"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
@@ -54,7 +54,7 @@ class Plan(Base):
     user: Mapped[User] = relationship("User", back_populates="plans")
     versions: Mapped[list[PlanVersion]] = relationship("PlanVersion", back_populates="plan", cascade="all, delete-orphan")  # type: ignore[name-defined]
 
-
+# 计划版本表，存放计划版本的id，计划id，版本，数据，备注，评分，创建时间
 class PlanVersion(Base):
     __tablename__ = "plan_versions"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
@@ -71,7 +71,7 @@ class PlanVersion(Base):
         UniqueConstraint("plan_id", "version", name="uq_plan_version"),
     )
 
-
+# 收藏表，存放收藏的id，用户id，计划id，创建时间，是否活跃
 class Favorite(Base):
     __tablename__ = "favorites"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
@@ -83,11 +83,11 @@ class Favorite(Base):
     user: Mapped[User] = relationship("User", back_populates="favorites")
     plan: Mapped[Plan] = relationship("Plan")
 
-
+# 初始化数据库
 def init_db() -> None:
     Base.metadata.create_all(bind=engine)
 
-
+# 获取数据库
 def get_db():
     db = SessionLocal()
     try:
